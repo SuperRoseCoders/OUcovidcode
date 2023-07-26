@@ -27,17 +27,19 @@ cases = [result[1] for result in results]
 deaths = [result[2] for result in results]
 
 # Convert dates to Matplotlib's numeric format
-dates = mdates.date2num(dates)
+dates_numeric = mdates.date2num(dates)
 
-# Create a 3D scatter plot (optional, if you want to plot the original data in 3D)
+# Create a 3D scatter plot using plot_date
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-ax.scatter(dates, cases, deaths)
+ax.plot_date(dates_numeric, cases, deaths, marker='o', linestyle='-', tz=None)
 ax.set_xlabel("Date")
 ax.set_ylabel("Cases")
 ax.set_zlabel("Deaths")
 ax.set_title("COVID-19 Cases and Deaths Over Time")
-ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+
+# Adjust x-axis ticks to spread the dates evenly
+ax.xaxis.set_major_locator(ticker.MaxNLocator(10))  # Change the number of ticks as needed
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
 for tick in ax.get_xticklabels():
     tick.set_rotation(45)
@@ -46,10 +48,13 @@ for tick in ax.get_xticklabels():
 diff_cases = np.diff(cases)
 diff_deaths = np.diff(deaths)
 
-# Plot the derivative data against the corresponding dates
+# Convert dates to datetime objects (from numeric format)
+dates = mdates.num2date(dates_numeric[1:])  # Convert only the derivative data
+
+# Plot the derivative data against the corresponding dates in regular format
 plt.figure()
-plt.plot(dates[1:], diff_cases, label="Cases Derivative")
-plt.plot(dates[1:], diff_deaths, label="Deaths Derivative")
+plt.plot(dates, diff_cases, label="Cases Derivative")
+plt.plot(dates, diff_deaths, label="Deaths Derivative")
 plt.xlabel("Date")
 plt.ylabel("Derivative")
 plt.title("Derivative of COVID-19 Cases and Deaths Over Time")
